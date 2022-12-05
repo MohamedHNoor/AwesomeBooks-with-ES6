@@ -1,9 +1,8 @@
-/* eslint-disable */
 import { displayDate } from './modules/date.js';
 import {
   openBookList,
   openAddBook,
-  openContact
+  openContact,
 } from './modules/navigation.js';
 
 import {
@@ -13,71 +12,64 @@ import {
   form,
   listBtn,
   addBtn,
-  contactBtn
+  contactBtn,
 } from './modules/variables.js';
 
 let bookArr = [];
 
-class Book {
-  constructor(title, author, id) {
-    this.title = title;
-    this.author = author;
-    this.id = id;
+const bookDisplay = () => {
+  bookInfo.innerHTML = '';
+  for (let i = 0; i < bookArr.length; i += 1) {
+    const oneBook = document.createElement('div');
+    oneBook.className = 'book';
+    oneBook.innerHTML = `
+      <p class="title">"${bookArr[i].title}" by ${bookArr[i].author}</p>
+      <button class="remove" data-id=${bookArr[i].id}>Remove</button>
+    `;
+    bookInfo.appendChild(oneBook);
+    title.value = '';
+    author.value = '';
   }
-
-  static bookDisplay() {
-    bookInfo.innerHTML = '';
-    for (let i = 0; i < bookArr.length; i += 1) {
-      const oneBook = document.createElement('div');
-      oneBook.className = 'book';
-      oneBook.innerHTML = `
-        <p class="title">"${bookArr[i].title}" by ${bookArr[i].author}</p>
-        <button class="remove" data-id=${bookArr[i].id}>Remove</button>
-      `;
-      bookInfo.appendChild(oneBook);
-      title.value = '';
-      author.value = '';
-    }
-    const removeBtn = document.querySelectorAll('.remove');
-    removeBtn.forEach((book) => {
-      book.addEventListener('click', () => {
-        const dataSet = parseInt(book.dataset.id, 10);
-        const btnId = bookArr.findIndex((object) => object.id === dataSet);
-        Book.removeBook(btnId);
-      });
+  const removeBtn = document.querySelectorAll('.remove');
+  removeBtn.forEach((book) => {
+    book.addEventListener('click', () => {
+      const dataSet = parseInt(book.dataset.id, 10);
+      const btnId = bookArr.findIndex((object) => object.id === dataSet);
+      // eslint-disable-next-line no-use-before-define
+      removeBook(btnId);
     });
-  }
+  });
+};
 
-  static addBook() {
-    const eachBook = {};
-    eachBook.id = bookArr.length;
-    eachBook.title = title.value;
-    eachBook.author = author.value;
+const removeBook = (id) => {
+  bookArr.splice(id, 1);
+  bookDisplay();
+  const jsonData = JSON.stringify(bookArr);
+  localStorage.setItem('form', jsonData);
+};
 
-    bookArr.push(eachBook);
-    Book.bookDisplay();
-    const jsonData = JSON.stringify(bookArr);
-    localStorage.setItem('form', jsonData);
-  }
+const addBook = () => {
+  const eachBook = {};
+  eachBook.id = bookArr.length;
+  eachBook.title = title.value;
+  eachBook.author = author.value;
 
-  static removeBook(id) {
-    bookArr.splice(id, 1);
-    Book.bookDisplay();
-    const jsonData = JSON.stringify(bookArr);
-    localStorage.setItem('form', jsonData);
-  }
-}
+  bookArr.push(eachBook);
+  bookDisplay();
+  const jsonData = JSON.stringify(bookArr);
+  localStorage.setItem('form', jsonData);
+};
 
 form.addEventListener('submit', (e) => {
   e.preventDefault();
-  Book.addBook();
+  addBook();
 });
 window.addEventListener('load', () => {
   const getJsonData = localStorage.getItem('form');
   if (getJsonData) {
     bookArr = JSON.parse(getJsonData);
   }
-  Book.bookDisplay();
+  bookDisplay();
 });
 
 // Date
